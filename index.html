@@ -83,6 +83,13 @@
       color: #fff;
       cursor: pointer;
       display: none;
+      opacity: 1;
+      transition: opacity 0.3s ease;
+    }
+
+    #fullscreen-btn.hidden {
+      opacity: 0;
+      pointer-events: none;
     }
 
     #fullscreen-btn:hover {
@@ -153,6 +160,28 @@
       fullscreenBtn.textContent = document.fullscreenElement ? '✕ Exit Fullscreen' : '⛶ Fullscreen';
       fullscreenBtn.title = label;
       fullscreenBtn.setAttribute('aria-label', label);
+      if (document.fullscreenElement) {
+        resetHideTimer();
+      } else {
+        clearTimeout(hideTimer);
+        fullscreenBtn.classList.remove('hidden');
+      }
+    });
+
+    let hideTimer = null;
+
+    function resetHideTimer() {
+      fullscreenBtn.classList.remove('hidden');
+      clearTimeout(hideTimer);
+      hideTimer = setTimeout(() => {
+        fullscreenBtn.classList.add('hidden');
+      }, 1000);
+    }
+
+    document.addEventListener('mousemove', () => {
+      if (document.fullscreenElement) {
+        resetHideTimer();
+      }
     });
   </script>
 </body>
