@@ -107,14 +107,11 @@
     <span id="error-msg"></span>
   </div>
 
-  <button id="fullscreen-btn" title="Enter fullscreen" aria-label="Enter fullscreen">⛶ Fullscreen</button>
-
   <script>
     const video = document.getElementById('video');
     const overlay = document.getElementById('overlay');
     const startBtn = document.getElementById('start-btn');
     const errorMsg = document.getElementById('error-msg');
-    const fullscreenBtn = document.getElementById('fullscreen-btn');
 
     startBtn.addEventListener('click', async () => {
       errorMsg.style.display = 'none';
@@ -128,7 +125,7 @@
         });
         video.srcObject = stream;
         overlay.style.display = 'none';
-        fullscreenBtn.style.display = 'block';
+        await document.documentElement.requestFullscreen();
       } catch (err) {
         startBtn.disabled = false;
         startBtn.textContent = 'Start Camera';
@@ -140,47 +137,6 @@
         } else {
           errorMsg.textContent = `Error: ${err.message}`;
         }
-      }
-    });
-
-    fullscreenBtn.addEventListener('click', async () => {
-      try {
-        if (!document.fullscreenElement) {
-          await document.documentElement.requestFullscreen();
-        } else {
-          await document.exitFullscreen();
-        }
-      } catch (err) {
-        console.error('Fullscreen error:', err);
-      }
-    });
-
-    document.addEventListener('fullscreenchange', () => {
-      const label = document.fullscreenElement ? 'Exit fullscreen' : 'Enter fullscreen';
-      fullscreenBtn.textContent = document.fullscreenElement ? '✕ Exit Fullscreen' : '⛶ Fullscreen';
-      fullscreenBtn.title = label;
-      fullscreenBtn.setAttribute('aria-label', label);
-      if (document.fullscreenElement) {
-        resetHideTimer();
-      } else {
-        clearTimeout(hideTimer);
-        fullscreenBtn.classList.remove('hidden');
-      }
-    });
-
-    let hideTimer = null;
-
-    function resetHideTimer() {
-      fullscreenBtn.classList.remove('hidden');
-      clearTimeout(hideTimer);
-      hideTimer = setTimeout(() => {
-        fullscreenBtn.classList.add('hidden');
-      }, 1000);
-    }
-
-    document.addEventListener('mousemove', () => {
-      if (document.fullscreenElement) {
-        resetHideTimer();
       }
     });
   </script>
