@@ -2,6 +2,8 @@
 
 A simple, fullscreen webcam viewer hosted with GitHub Pages.
 
+made in 15 minutes with github copilot
+
 ## Live Site
 
 [https://joshua-8.github.io/camera-viewer/](https://joshua-8.github.io/camera-viewer/)
