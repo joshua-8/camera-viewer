@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Camera Viewer</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: #000;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #video {
+      width: 100vw;
+      height: 100vh;
+      object-fit: contain;
+    }
+
+    #overlay {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      color: #fff;
+      font-family: system-ui, sans-serif;
+      text-align: center;
+      padding: 1rem;
+    }
+
+    #overlay h1 {
+      font-size: 1.5rem;
+    }
+
+    #overlay p {
+      font-size: 1rem;
+      color: #ccc;
+    }
+
+    #start-btn {
+      margin-top: 0.5rem;
+      padding: 0.75rem 2rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 0.375rem;
+      background: #2563eb;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    #start-btn:hover {
+      background: #1d4ed8;
+    }
+
+    #error-msg {
+      display: none;
+      color: #f87171;
+      font-size: 0.9rem;
+    }
+
+    #fullscreen-btn {
+      position: fixed;
+      bottom: 1rem;
+      right: 1rem;
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      border: 1px solid #555;
+      border-radius: 0.375rem;
+      background: rgba(0, 0, 0, 0.6);
+      color: #fff;
+      cursor: pointer;
+      display: none;
+    }
+
+    #fullscreen-btn:hover {
+      background: rgba(0, 0, 0, 0.85);
+    }
+  </style>
+</head>
+<body>
+  <video id="video" autoplay muted playsinline></video>
+
+  <div id="overlay">
+    <h1>Camera Viewer</h1>
+    <p>Click the button below to start your webcam (1920&times;1080).</p>
+    <button id="start-btn">Start Camera</button>
+    <span id="error-msg"></span>
+  </div>
+
+  <button id="fullscreen-btn" title="Enter fullscreen" aria-label="Enter fullscreen">⛶ Fullscreen</button>
+
+  <script>
+    const video = document.getElementById('video');
+    const overlay = document.getElementById('overlay');
+    const startBtn = document.getElementById('start-btn');
+    const errorMsg = document.getElementById('error-msg');
+    const fullscreenBtn = document.getElementById('fullscreen-btn');
+
+    startBtn.addEventListener('click', async () => {
+      errorMsg.style.display = 'none';
+      startBtn.disabled = true;
+      startBtn.textContent = 'Starting…';
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { width: { ideal: 1920 }, height: { ideal: 1080 } },
+          audio: false,
+        });
+        video.srcObject = stream;
+        overlay.style.display = 'none';
+        fullscreenBtn.style.display = 'block';
+      } catch (err) {
+        startBtn.disabled = false;
+        startBtn.textContent = 'Start Camera';
+        errorMsg.style.display = 'block';
+        if (err.name === 'NotAllowedError') {
+          errorMsg.textContent = 'Camera access denied. Please allow camera permissions and try again.';
+        } else if (err.name === 'NotFoundError') {
+          errorMsg.textContent = 'No camera found. Please connect a webcam and try again.';
+        } else {
+          errorMsg.textContent = `Error: ${err.message}`;
+        }
+      }
+    });
+
+    fullscreenBtn.addEventListener('click', async () => {
+      try {
+        if (!document.fullscreenElement) {
+          await document.documentElement.requestFullscreen();
+        } else {
+          await document.exitFullscreen();
+        }
+      } catch (err) {
+        console.error('Fullscreen error:', err);
+      }
+    });
+
+    document.addEventListener('fullscreenchange', () => {
+      const label = document.fullscreenElement ? 'Exit fullscreen' : 'Enter fullscreen';
+      fullscreenBtn.textContent = document.fullscreenElement ? '✕ Exit Fullscreen' : '⛶ Fullscreen';
+      fullscreenBtn.title = label;
+      fullscreenBtn.setAttribute('aria-label', label);
+    });
+  </script>
+</body>
+</html>
